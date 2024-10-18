@@ -34,7 +34,7 @@ def process_uploaded_files(up_file):
 
 
 def lode_image():
-    st.title('Генерация описания для картинок')
+    st.title('Генерация описания для загруженных пользователем картинок')
     up_file = st.file_uploader(
         'Загрузите изображение', type=['png', 'jpg', 'jpeg']
     )
