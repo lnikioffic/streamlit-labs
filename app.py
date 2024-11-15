@@ -1,9 +1,8 @@
-from transformers import AutoImageProcessor, AutoModelForImageClassification
+import pandas as pd
+import streamlit as st
 from PIL import Image
 from io import BytesIO
-import streamlit as st
-import pandas as pd
-
+from transformers import AutoImageProcessor, AutoModelForImageClassification
 
 processor = AutoImageProcessor.from_pretrained("microsoft/swin-tiny-patch4-window7-224")
 model = AutoModelForImageClassification.from_pretrained(
@@ -63,7 +62,6 @@ def select_options():
 
 
 def titanic_data(df, status_option, value_option):
-
     # Преобразование статуса в значения для фильтрации
     if status_option == "Спасенные":
         survived_value = 1
@@ -93,7 +91,7 @@ def titanic_data(df, status_option, value_option):
             "Пол": ["Мужчины", "Женщины"],
             "Процент": [round(male_percentage, 2), round(female_percentage, 2)],
         }
-        
+
     return results
 
 
