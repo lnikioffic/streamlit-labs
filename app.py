@@ -1,6 +1,5 @@
 from transformers import AutoImageProcessor, AutoModelForImageClassification
 from PIL import Image
-import requests
 from io import BytesIO
 import streamlit as st
 import pandas as pd
@@ -8,8 +7,9 @@ import pandas as pd
 
 processor = AutoImageProcessor.from_pretrained("microsoft/swin-tiny-patch4-window7-224")
 model = AutoModelForImageClassification.from_pretrained(
-        "microsoft/swin-tiny-patch4-window7-224"
-    )
+    "microsoft/swin-tiny-patch4-window7-224"
+)
+
 
 def process_uploaded_files(up_file):
     image = Image.open(up_file)
@@ -35,9 +35,7 @@ def process_uploaded_files(up_file):
 
 def lode_image():
     st.title('Генерация описания для загруженных пользователем картинок')
-    up_file = st.file_uploader(
-        'Загрузите изображение', type=['png', 'jpg', 'jpeg']
-    )
+    up_file = st.file_uploader('Загрузите изображение', type=['png', 'jpg', 'jpeg'])
     if up_file is not None:
         # Обработка загруженного файла
         image_bytes, caption = process_uploaded_files(up_file)
@@ -49,17 +47,23 @@ def lode_image():
     # image = Image.open(requests.get(url, stream=True).raw)
 
 
-def titanic_data():
+def read_data():
     df = pd.read_csv('titanic_train.csv', delimiter=',')
-    result = df.groupby(['Sex', 'Survived']).size().unstack(fill_value=0)
     st.image('t.jpg', use_column_width=True)
     # Заголовок приложения
     st.title("Статистика спасенных и погибших")
+    return df
 
+
+def select_options():
     # Выбор между живыми и мертвыми
     status_option = st.selectbox("Выберите статус:", ["Спасенные", "Погибшие"])
     # Выбор между числом и процентом
     value_option = st.selectbox("Выберите отображение:", ["Число", "Процент"])
+    return status_option, value_option
+
+
+def titanic_data(df, status_option, value_option):
 
     # Преобразование статуса в значения для фильтрации
     if status_option == "Спасенные":
@@ -77,25 +81,33 @@ def titanic_data():
 
     # Создание DataFrame для отображения результатов
     if value_option == "Число":
-        results = {"Пол": ["Мужчины", "Женщины"], "Количество": [male_count, female_count]}
+        results = {
+            "Пол": ["Мужчины", "Женщины"],
+            "Количество": [male_count, female_count],
+        }
 
     else:  # Проценты
         male_percentage = (male_count / total_males * 100) if total_males > 0 else 0
-        female_percentage = (female_count / total_females * 100) if total_females > 0 else 0
+        female_percentage = (
+            (female_count / total_females * 100) if total_females > 0 else 0
+        )
         results = {
             "Пол": ["Мужчины", "Женщины"],
-            "Процент": [male_percentage, female_percentage],
+            "Процент": [round(male_percentage, 2), round(female_percentage, 2)],
         }
     # Преобразование в DataFrame
-    results_df = pd.DataFrame(results)
-
+    return results
     # Отображение таблицы
-    st.dataframe(results_df)
 
 
 def main():
-    titanic_data()
+    df = read_data()
+    status_option, value_option = select_options()
+    results = titanic_data(df, status_option, value_option)
+    results_df = pd.DataFrame(results)
+    st.dataframe(results_df)
     lode_image()
+
 
 if __name__ == '__main__':
     main()
