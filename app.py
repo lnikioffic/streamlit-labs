@@ -24,7 +24,6 @@ def process_uploaded_files(up_file):
     inputs = processor(images=image, return_tensors="pt")
     outputs = model(**inputs)
     logits = outputs.logits
-    # model predicts one of the 1000 ImageNet classes
     predicted_class_idx = logits.argmax(-1).item()
     image_bytes = BytesIO()
     image.save(image_bytes, format="PNG")
@@ -41,8 +40,8 @@ def lode_image():
         image_bytes, caption = process_uploaded_files(up_file)
 
         # Отображение изображения и описания
-        st.image(image_bytes, caption="Загруженное изображение", use_column_width=True)
-        st.write(f"Сгенерированное описание: {caption}")
+
+        return image_bytes, caption
     # url = "https://i.pinimg.com/originals/24/32/68/243268a10cc4a8903d07d6d89a4221bf.jpg"
     # image = Image.open(requests.get(url, stream=True).raw)
 
@@ -85,7 +84,6 @@ def titanic_data(df, status_option, value_option):
             "Пол": ["Мужчины", "Женщины"],
             "Количество": [male_count, female_count],
         }
-
     else:  # Проценты
         male_percentage = (male_count / total_males * 100) if total_males > 0 else 0
         female_percentage = (
@@ -95,9 +93,8 @@ def titanic_data(df, status_option, value_option):
             "Пол": ["Мужчины", "Женщины"],
             "Процент": [round(male_percentage, 2), round(female_percentage, 2)],
         }
-    # Преобразование в DataFrame
+        
     return results
-    # Отображение таблицы
 
 
 def main():
@@ -106,7 +103,10 @@ def main():
     results = titanic_data(df, status_option, value_option)
     results_df = pd.DataFrame(results)
     st.dataframe(results_df)
-    lode_image()
+    image_bytes, caption = lode_image()
+    if image_bytes is not None:
+        st.image(image_bytes, caption="Загруженное изображение", use_column_width=True)
+        st.write(f"Сгенерированное описание: {caption}")
 
 
 if __name__ == '__main__':
